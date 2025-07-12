@@ -1,0 +1,35 @@
+import dotenv from "dotenv";
+dotenv.config();
+
+const MONGODB_URI = process.env.MONGODB_URI;
+const PORT = process.env.PORT;
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
+const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
+const VERIFY_TOKEN_SECRET = process.env.VERIFY_TOKEN_SECRET;
+const FORGOT_PASSWORD_TOKEN_SECRET = process.env.FORGOT_PASSWORD_TOKEN_SECRET;
+const CLOUD_NAME = process.env.CLOUD_NAME;
+const CLOUD_API_KEY = process.env.CLOUD_API_KEY;
+const CLOUD_API_KEY_SECRET = process.env.CLOUD_API_KEY_SECRET;
+const EMAIL_USER = process.env.EMAIL_USER;
+const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
+const EMAIL_HOST = process.env.EMAIL_HOST;
+const EMAIL_PORT = process.env.EMAIL_PORT;
+const SENDER_EMAIL = process.end.SENDER_EMIAL;
+
+export {
+    MONGODB_URI,
+    PORT,
+    REFRESH_TOKEN_SECRET,
+    ACCESS_TOKEN_SECRET,
+    VERIFY_TOKEN_SECRET,
+    FORGOT_PASSWORD_TOKEN_SECRET,
+    CLOUD_NAME,
+    CLOUD_API_KEY,
+    CLOUD_API_KEY_SECRET,
+    EMAIL_USER,
+    EMAIL_PASSWORD,
+    EMAIL_HOST,
+    EMAIL_PORT,
+    SENDER_EMAIL,
+    BASE_URL,
+};
