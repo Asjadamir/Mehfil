@@ -30,7 +30,7 @@ const navLinks = [
 export const Navbar = () => {
     const location = useLocation();
     return (
-        <div className="w-full fixed top-0 z-50 bg-accent/20 backdrop-blur-md">
+        <div className="w-full fixed top-0 z-50 bg-background/60 backdrop-blur-sm">
             <div className="container flex flex-row justify-between items-center py-5 mx-auto px-4">
                 <NavLink
                     to="/"

@@ -1,7 +1,8 @@
 import "./App.css";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/components/ui/theme-provider";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Navbar } from "./components/navbar";
+import ForgotPassword from "./pages/forgot_password";
 import Login from "./pages/login";
 
 function App() {
@@ -15,7 +16,10 @@ function App() {
                     <Route path="/about" element={<div>About Page</div>} />
                     <Route path="/contact" element={<div>Contact Page</div>} />
                     <Route path="/login" element={<Login />} />
-                    <Route path="/forget" />
+                    <Route
+                        path="/forgot-password"
+                        element={<ForgotPassword />}
+                    />
                 </Routes>
             </BrowserRouter>
         </ThemeProvider>
