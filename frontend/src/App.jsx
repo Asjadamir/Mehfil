@@ -4,12 +4,15 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Navbar } from "./components/navbar";
 import ForgotPassword from "./pages/forgot_password";
 import Login from "./pages/login";
+import ResetPassword from "./pages/reset_password";
+import { Toaster } from "react-hot-toast";
 
 function App() {
     return (
         <ThemeProvider storageKey="vite-ui-theme" defaultTheme="system">
             <BrowserRouter>
                 <Navbar />
+                <Toaster position="top-center" reverseOrder={false} />
                 <Routes>
                     <Route path="/" element={<div>Home Page</div>} />
                     <Route path="/events" element={<div>Events Page</div>} />
@@ -19,6 +22,10 @@ function App() {
                     <Route
                         path="/forgot-password"
                         element={<ForgotPassword />}
+                    />
+                    <Route
+                        path="/reset-password/:token"
+                        element={<ResetPassword />}
                     />
                 </Routes>
             </BrowserRouter>

@@ -54,53 +54,49 @@ export default function ForgetPasswordPreview() {
     }
 
     return (
-        <>
-            <Toaster position="top-center" reverseOrder={false} />
-            <Card className="mx-auto w-4/5 max-w-sm">
-                <CardHeader>
-                    <CardTitle className="text-2xl">Forgot Password</CardTitle>
-                    <CardDescription>
-                        Enter your email address to receive a password reset
-                        link.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Form {...form}>
-                        <form
-                            onSubmit={form.handleSubmit(onSubmit)}
-                            className="space-y-8"
-                        >
-                            <div className="grid gap-4">
-                                {/* Email Field */}
-                                <FormField
-                                    control={form.control}
-                                    name="email"
-                                    render={({ field }) => (
-                                        <FormItem className="grid gap-2">
-                                            <FormLabel htmlFor="email">
-                                                Email
-                                            </FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    id="email"
-                                                    placeholder="johndoe@mail.com"
-                                                    type="email"
-                                                    autoComplete="email"
-                                                    {...field}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <Button type="submit" className="w-full">
-                                    Send Reset Link
-                                </Button>
-                            </div>
-                        </form>
-                    </Form>
-                </CardContent>
-            </Card>
-        </>
+        <Card className="mx-auto w-4/5 max-w-sm">
+            <CardHeader>
+                <CardTitle className="text-2xl">Forgot Password</CardTitle>
+                <CardDescription>
+                    Enter your email address to receive a password reset link.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Form {...form}>
+                    <form
+                        onSubmit={form.handleSubmit(onSubmit)}
+                        className="space-y-8"
+                    >
+                        <div className="grid gap-4">
+                            {/* Email Field */}
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem className="grid gap-2">
+                                        <FormLabel htmlFor="email">
+                                            Email
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                id="email"
+                                                placeholder="johndoe@mail.com"
+                                                type="email"
+                                                autoComplete="email"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <Button type="submit" className="w-full">
+                                Send Reset Link
+                            </Button>
+                        </div>
+                    </form>
+                </Form>
+            </CardContent>
+        </Card>
     );
 }
