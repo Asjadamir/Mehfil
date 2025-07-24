@@ -3,7 +3,7 @@
 import { Link } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { toast, Toaster } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 
 import {
     Form,
@@ -43,7 +43,6 @@ export default function LoginPreview() {
 
     return (
         <>
-            <Toaster position="top-center" reverseOrder={false} />
             <div className="flex justify-center md:justify-end w-full md:w-1/2">
                 <div className="flex flex-col h-full w-full items-center justify-center max-w-md py-23 gap-6">
                     <div>
@@ -119,7 +118,7 @@ export default function LoginPreview() {
                     </Form>
                     <div className="mt-4 text-center text-sm">
                         Don&apos;t have an account?{" "}
-                        <Link href="#" className="underline">
+                        <Link to="/signup" className="underline">
                             Sign up
                         </Link>
                     </div>

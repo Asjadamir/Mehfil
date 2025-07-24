@@ -36,7 +36,7 @@ export const Navbar = () => {
                     to="/"
                     className="font-extrabold text-lg uppercase text-primary-accent"
                 >
-                    Mehfil
+                    محفل
                 </NavLink>
                 {/* Desktop Navigation */}
                 <NavigationMenu className="hidden md:flex">

@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import mongoose from "mongoose";
 // import bcrypt from "bcryptjs";
 import bcrypt from "bcryptjs";
 
@@ -10,7 +10,7 @@ import {
 } from "../config/env.js";
 import jwt from "jsonwebtoken";
 
-let UserSchema = new Schema(
+let UserSchema = new mongoose.Schema(
     {
         name: {
             type: String,
@@ -62,7 +62,7 @@ let UserSchema = new Schema(
         lastSeens: [
             {
                 chatID: {
-                    type: Schema.Types.ObjectId,
+                    type: mongoose.ObjectId,
                     ref: "Chat",
                 },
                 lastseen: {
@@ -78,7 +78,7 @@ let UserSchema = new Schema(
 
         friends: [
             {
-                type: mongoose.Types.ObjectId,
+                type: mongoose.ObjectId,
                 ref: "User",
             },
         ],
