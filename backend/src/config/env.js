@@ -3,6 +3,8 @@ dotenv.config();
 
 const MONGODB_URI = process.env.MONGODB_URI;
 const PORT = process.env.PORT;
+const BASE_URL = process.env.BASE_URL;
+const FRONTEND_URL = process.env.FRONTEND_URL;
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
 const VERIFY_TOKEN_SECRET = process.env.VERIFY_TOKEN_SECRET;
@@ -14,7 +16,7 @@ const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
 const EMAIL_HOST = process.env.EMAIL_HOST;
 const EMAIL_PORT = process.env.EMAIL_PORT;
-const SENDER_EMAIL = process.env.SENDER_EMIAL;
+const SENDER_EMAIL = process.env.SENDER_EMAIL;
 
 export {
     MONGODB_URI,
@@ -31,5 +33,6 @@ export {
     EMAIL_HOST,
     EMAIL_PORT,
     SENDER_EMAIL,
-    // BASE_URL,
+    BASE_URL,
+    FRONTEND_URL,
 };

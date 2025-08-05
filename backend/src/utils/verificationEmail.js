@@ -1,43 +1,40 @@
 import nodemailer from "nodemailer";
-import {
-    EMAIL_HOST,
-    EMAIL_PASSWORD,
-    EMAIL_PORT,
-    EMAIL_USER,
-    SENDER_EMAIL,
-    BASE_URL,
-} from "../config/env.js";
+import { FRONTEND_URL } from "../config/env.js";
 
-let transporter = nodemailer.createTransport({
-    host: EMAIL_HOST,
-    secure: true,
-    port: EMAIL_PORT,
-    auth: {
-        user: EMAIL_USER,
-        pass: EMAIL_PASSWORD,
-    },
-});
+export const sendVerificationEmail = async (email, token) => {
+    // Create a test SMTP account from Ethereal
+    let testaccount = await nodemailer.createTestAccount();
 
-const sendVerificationEmail = (email, token) => {
-    const url = `${BASE_URL}/verify/${token}`;
+    // Create a transporter
+    let transporter = nodemailer.createTransport({
+        host: testaccount.smtp.host,
+        secure: testaccount.smtp.secure,
+        port: testaccount.smtp.port,
+        auth: {
+            user: testaccount.user,
+            pass: testaccount.pass,
+        },
+    });
 
-    transporter.sendMail(
-        {
-            from: SENDER_EMAIL,
+    // Construct verification URL
+    const url = `${FRONTEND_URL}/verifyEmail/${token}`;
+
+    // Send email
+    try {
+        let info = await transporter.sendMail({
+            from: '"Mehfil" <no-reply@mehfil.com>',
             to: email,
             subject: "Mehfil: Verify Your Email",
             html: `<h2>Welcome to Mehfil!</h2>
-        <p>Click on the link below to verify your email:</p>
-        <a href="${url}">Verify Email</a>`,
-        },
-        (err, res) => {
-            if (err) {
-                console.error("Error sending email:", err);
-            } else {
-                console.log("Email sent:", res.message);
-            }
+                <p>Click on the link below to verify your email:</p>
+                <a href="${url}">Verify Email</a>`,
+        });
 
-            return res;
-        }
-    );
+        console.log("Email sent: %s", info.messageId);
+        console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info)); // Ethereal preview
+        return info;
+    } catch (err) {
+        console.error("Error sending email:", err);
+        throw err;
+    }
 };

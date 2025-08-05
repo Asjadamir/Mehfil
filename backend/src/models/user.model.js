@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
-// import bcrypt from "bcryptjs";
 import bcrypt from "bcryptjs";
-
 import {
     REFRESH_TOKEN_SECRET,
     ACCESS_TOKEN_SECRET,
@@ -14,24 +12,31 @@ let UserSchema = new mongoose.Schema(
     {
         name: {
             type: String,
-            required: true,
             minlength: 3,
             maxlength: 30,
         },
 
         username: {
             type: String,
-            required: true,
             unique: true,
             lowercase: true,
             minlength: 4,
             maxlength: 30,
+            validate: {
+                validator: (username) => /^[a-z0-9_]+$/.test(username),
+                message:
+                    "Username can only contain lowercase letters, numbers, and underscores.",
+            },
         },
 
         description: {
             type: String,
             default: "",
             maxlength: 120,
+            validate: {
+                validator: (description) => description.length <= 120,
+                message: "Description cannot exceed 120 characters.",
+            },
         },
 
         email: {
@@ -62,7 +67,7 @@ let UserSchema = new mongoose.Schema(
         lastSeens: [
             {
                 chatID: {
-                    type: mongoose.ObjectId,
+                    type: mongoose.Schema.Types.ObjectId,
                     ref: "Chat",
                 },
                 lastseen: {
@@ -78,7 +83,7 @@ let UserSchema = new mongoose.Schema(
 
         friends: [
             {
-                type: mongoose.ObjectId,
+                type: mongoose.Schema.Types.ObjectId,
                 ref: "User",
             },
         ],

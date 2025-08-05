@@ -3,6 +3,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { sendVerificationEmail } from "../utils/verificationEmail.js";
+import { userDTO } from "../dto/userdto.js";
 
 const generateAccessAndRefreshToken = async (userId) => {
     let accessToken, refreshToken;
@@ -18,7 +20,15 @@ const generateAccessAndRefreshToken = async (userId) => {
     }
 };
 
-const generateVerifyToken = async (userId) => {};
+const generateVerifyToken = async (userId) => {
+    let verifyToken;
+    try {
+        const user = await User.findById(userId);
+        verifyToken = await user.generateVerifyToken();
+    } catch (error) {
+        console.error("There is an error in generating verify token");
+    }
+};
 
 const cookieOptions = {
     httpOnly: true,
@@ -28,34 +38,34 @@ const cookieOptions = {
 export const userControllers = {
     registerEmail: asyncHandler(async (req, res) => {
         let { email, password } = req.body;
-
+        console.log(req.body);
         if ([email, password].some((field) => field.trim() === ""))
-            throw new ApiError(400, "All fiedls are reqiured");
+            throw new ApiError(400, "All fields are required");
 
-        const emailInUse = await User.findOne({ email, isVerified: true });
+        // Check if the email is already registered
+        let emailInUse = await User.findOne({ email, isVerified: true });
         if (emailInUse) throw new ApiError(401, "Email already registered");
 
-        const user = await User.findOne({ email, isVerified: false });
+        // Check if the user is already registered but not verified
+        let user = await User.findOne({ email, isVerified: false });
 
+        // If user exists, update the password
         user
             ? (user.password = password)
             : (user = new User({ email, password }));
 
         await user.save();
 
-        const storedUser = await User.findById(user._id).select(
-            "-password -refreshToken"
-        );
+        let info = await sendVerificationEmail(user.email, user._id);
+        console.log("Verification email sent:", info.response);
 
-        return res
-            .status(200)
-            .cookie("accessToken", accessToken, cookieOptions)
-            .cookie("refreshToken", refreshToken, cookieOptions)
-            .json(
-                new ApiResponse(200, "User registered successfully", {
-                    user: storedUser,
-                })
-            );
+        let storedUser = new userDTO(user);
+
+        return res.status(200).json(
+            new ApiResponse(200, "User registered successfully", {
+                user: storedUser,
+            })
+        );
     }),
 
     registerUser: asyncHandler(async (req, res) => {
