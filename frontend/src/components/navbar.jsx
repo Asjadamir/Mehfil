@@ -27,10 +27,24 @@ const navLinks = [
     { name: "Contact", href: "/contact" },
 ];
 
+// These are the paths on which the navbar is hidden
+const hiddenPaths = [
+    "/login",
+    "/signup",
+    "/forgot-password",
+    "/reset-password",
+];
+
 export const Navbar = () => {
     const location = useLocation();
     return (
-        <div className="w-full fixed top-0 z-50 bg-background/60 backdrop-blur-sm">
+        <div
+            className={
+                hiddenPaths.includes(location.pathname)
+                    ? "hidden"
+                    : "w-full fixed top-0 z-50 bg-background/60 backdrop-blur-sm"
+            }
+        >
             <div className="container flex flex-row justify-between items-center py-5 mx-auto px-4">
                 <NavLink
                     to="/"

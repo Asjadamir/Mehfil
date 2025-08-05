@@ -1,19 +1,29 @@
 import React from "react";
 import LoginForm from "@/components/login_form";
+// import clsx from "clsx";
 
-const login = () => {
+export const MainFormWrapper = ({ children }) => {
     return (
-        <div className="flex items-center justify-center min-h-screen relative w-full h-content">
-            <div className="absolute hidden md:flex w-screen h-full -z-10">
-                <div className="bg-[url(/form_bg.jpg)] w-1/2 min-h-screen bg-cover dark:brightness-70 bg-center"></div>
-                <div className="hidden md:flex md:w-1/2 max-h-screen" />
-            </div>
-            <div className="flex container mx-auto">
-                <div className="hidden md:flex w-1/2" />
-                <LoginForm />
+        <div className="flex items-stretch w-full h-auto min-h-screen">
+            <div className="hidden md:flex flex-1 bg-cover lg:bg-contain bg-no-repeat bg-top bg-[url('/login_bg_light.jpg')] dark:bg-[url('/login_bg_dark.jpg')]" />
+
+            <div className="flex items-center relative justify-center md:w-1/2 w-full max-w-5xl bg-background/80">
+                <div
+                    className="h-2/6 w-2/5 bg-secondary absolute top-0 right-0 -z-10"
+                    style={{ clipPath: "ellipse(80% 100% at 89% 0%)" }}
+                />
+                {children}
             </div>
         </div>
     );
 };
 
-export default login;
+const Login = () => {
+    return (
+        <MainFormWrapper>
+            <LoginForm />
+        </MainFormWrapper>
+    );
+};
+
+export default Login;

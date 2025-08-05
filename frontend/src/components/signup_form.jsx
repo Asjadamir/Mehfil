@@ -1,9 +1,8 @@
 "use client";
-import { toast } from "react-hot-toast";
-import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Button } from "@/components/ui/button";
+import { useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
 import {
     Form,
     FormControl,
@@ -12,29 +11,31 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
+import { registerFormSchema } from "@/lib/validation-schemas";
 
-const formSchema = z.object({
-    username: z.string().min(1),
-    email: z.string(),
-    password: z.string(),
-    confirm_password: z.string(),
-});
+const formSchema = registerFormSchema;
 
-export default function MyForm() {
+export default function RegisterPreview() {
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            username: "",
             email: "",
             password: "",
-            confirm_password: "",
+            confirmPassword: "",
         },
     });
 
-    function onSubmit(values) {
+    const values = form.watch();
+    console.log(values);
+    const isAnyFieldEmpty = Object.values(values).some((val) => !val?.trim());
+    console.log(isAnyFieldEmpty);
+
+    async function onSubmit(values) {
         try {
+            // Assuming an async registration function
             console.log(values);
             toast(
                 <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
@@ -52,91 +53,108 @@ export default function MyForm() {
     }
 
     return (
-        <Form {...form}>
-            <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-8 max-w-3xl min-h-screen p-6 flex flex-col justify-center bg-background/90 backdrop-blur-md"
-            >
-                <FormField
-                    control={form.control}
-                    name="username"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Username</FormLabel>
-                            <FormControl>
-                                <Input
-                                    placeholder="Enter a Unique Username"
-                                    type=""
-                                    {...field}
-                                />
-                            </FormControl>
-
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
-                <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                                <Input
-                                    placeholder="Your Email Here"
-                                    type="email"
-                                    {...field}
-                                />
-                            </FormControl>
-
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
-                <div className="grid grid-cols-12 gap-4">
-                    <div className="col-span-6">
-                        <FormField
-                            control={form.control}
-                            name="password"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Password</FormLabel>
-                                    <FormControl>
-                                        <PasswordInput
-                                            placeholder="Enter your password."
-                                            {...field}
-                                        />
-                                    </FormControl>
-
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-
-                    <div className="col-span-6">
-                        <FormField
-                            control={form.control}
-                            name="confirm_password"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Confirm Password</FormLabel>
-                                    <FormControl>
-                                        <PasswordInput
-                                            placeholder="Cofirm Your Password"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
+        <div className="flex justify-center w-full mx-auto">
+            <div className="flex flex-col h-full w-full items-center justify-center max-w-md py-8 gap-6">
+                <div className="flex flex-col items-center gap-1 mb-3">
+                    <h1 className="text-primary font-bold text-4xl">Sign Up</h1>
+                    <p className="text-secondary">
+                        Let's get you started with your account.
+                    </p>
                 </div>
-                <Button type="submit">Submit</Button>
-            </form>
-        </Form>
+
+                <Form {...form}>
+                    <form
+                        onSubmit={form.handleSubmit(onSubmit)}
+                        className="space-y-8 w-4/5 md:max-w-72 lg:max-w-[1000px]"
+                    >
+                        <div className="grid gap-4">
+                            {/* Email Field */}
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem className="grid gap-2">
+                                        <FormLabel htmlFor="email">
+                                            Email
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                id="email"
+                                                placeholder="johndoe@mail.com"
+                                                type="email"
+                                                required
+                                                autoComplete="email"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* Password Field */}
+                            <FormField
+                                control={form.control}
+                                name="password"
+                                render={({ field }) => (
+                                    <FormItem className="grid gap-2">
+                                        <FormLabel htmlFor="password">
+                                            Password
+                                        </FormLabel>
+                                        <FormControl>
+                                            <PasswordInput
+                                                id="password"
+                                                placeholder="******"
+                                                required
+                                                autoComplete="new-password"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* Confirm Password Field */}
+                            <FormField
+                                control={form.control}
+                                name="confirmPassword"
+                                render={({ field }) => (
+                                    <FormItem className="grid gap-2">
+                                        <FormLabel htmlFor="confirmPassword">
+                                            Confirm Password
+                                        </FormLabel>
+                                        <FormControl>
+                                            <PasswordInput
+                                                id="confirmPassword"
+                                                placeholder="******"
+                                                autoComplete="new-password"
+                                                required
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <Button
+                                type="submit"
+                                disabled={isAnyFieldEmpty}
+                                className="w-full"
+                            >
+                                Register
+                            </Button>
+                        </div>
+                    </form>
+                </Form>
+                <div className="mt-4 text-center text-sm">
+                    Already have an account?{" "}
+                    <Link to="/login" className="underline">
+                        Login
+                    </Link>
+                </div>
+            </div>
+        </div>
     );
 }

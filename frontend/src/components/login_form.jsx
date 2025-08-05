@@ -43,13 +43,10 @@ export default function LoginPreview() {
 
     return (
         <>
-            <div className="flex justify-center md:justify-end w-full md:w-1/2">
+            <div className="flex justify-center w-full mx-auto">
                 <div className="flex flex-col h-full w-full items-center justify-center max-w-md py-23 gap-6">
-                    <div>
-                        <h1 className="text-primary font-bold text-4xl">
-                            Login
-                        </h1>
-                    </div>
+                    <h1 className="text-primary font-bold text-4xl">Login</h1>
+
                     <Form {...form}>
                         <form
                             onSubmit={form.handleSubmit(onSubmit)}
@@ -70,6 +67,7 @@ export default function LoginPreview() {
                                                     placeholder="johndoe@mail.com"
                                                     type="email"
                                                     autoComplete="email"
+                                                    required
                                                     className="bg-zinc-100 outline-1 outline-black"
                                                     {...field}
                                                 />
@@ -99,6 +97,7 @@ export default function LoginPreview() {
                                                     id="password"
                                                     placeholder="******"
                                                     autoComplete="current-password"
+                                                    required
                                                     className="bg-zinc-100 outline-1 outline-black"
                                                     {...field}
                                                 />
