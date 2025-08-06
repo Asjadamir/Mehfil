@@ -6,8 +6,9 @@ import ForgotPassword from "./pages/forgot_password";
 import Login from "./pages/login";
 import ResetPassword from "./pages/reset_password";
 import { Toaster } from "react-hot-toast";
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
 import SignUp from "./pages/signup";
+import VerifyEmail from "./pages/verifyEmail";
 
 function App() {
     // const socket = io("http://localhost:5000");
@@ -25,6 +26,10 @@ function App() {
                     <Route path="/about" element={<div>About Page</div>} />
                     <Route path="/contact" element={<div>Contact Page</div>} />
                     <Route path="/login" element={<Login />} />
+                    <Route
+                        path="/verify-email/:token"
+                        element={<VerifyEmail />}
+                    />
                     <Route
                         path="/forgot-password"
                         element={<ForgotPassword />}

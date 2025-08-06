@@ -5,6 +5,8 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { sendVerificationEmail } from "../utils/verificationEmail.js";
 import { userDTO } from "../dto/userdto.js";
+import jwt from "jsonwebtoken";
+import { VERIFY_TOKEN_SECRET } from "../config/env.js";
 
 const generateAccessAndRefreshToken = async (userId) => {
     let accessToken, refreshToken;
@@ -17,16 +19,6 @@ const generateAccessAndRefreshToken = async (userId) => {
         return { accessToken, refreshToken };
     } catch (error) {
         console.error("There is an error in generating tokens");
-    }
-};
-
-const generateVerifyToken = async (userId) => {
-    let verifyToken;
-    try {
-        const user = await User.findById(userId);
-        verifyToken = await user.generateVerifyToken();
-    } catch (error) {
-        console.error("There is an error in generating verify token");
     }
 };
 
@@ -53,10 +45,11 @@ export const userControllers = {
         user
             ? (user.password = password)
             : (user = new User({ email, password }));
-
+        await user.generateVerifyToken();
         await user.save();
 
-        let info = await sendVerificationEmail(user.email, user._id);
+        let info = await sendVerificationEmail(user.email, user.verifyToken);
+        console.log(user.verifyToken);
         console.log("Verification email sent:", info.response);
 
         let storedUser = new userDTO(user);
@@ -99,7 +92,34 @@ export const userControllers = {
         );
     }),
 
-    verifyUser: asyncHandler(async (req, res) => {}),
+    verifyUserEmail: asyncHandler(async (req, res) => {
+        const { token } = req.body;
+        if (!token) throw new ApiError(400, "Token is missing");
+
+        console.log("Token received:", token);
+        let tokenData = await jwt.verify(token, VERIFY_TOKEN_SECRET);
+        if (!tokenData)
+            throw new ApiError(400, "Invalid token or token expired.");
+
+        let user = await User.findOne({ verifyToken: token });
+        if (!user)
+            throw new ApiError(400, "Invalid token or user already verified.");
+        console.log(tokenData.userId, user._id);
+
+        if (tokenData.userId == user._id) {
+            user.isVerified = true;
+            user.verifyToken = undefined;
+            await user.save();
+            let userSaved = new userDTO(user);
+            return res.status(200).json(
+                new ApiResponse(200, "User verified successfully", {
+                    user: userSaved,
+                })
+            );
+        } else {
+            throw new ApiError(400, "Invalid token or user already verified.");
+        }
+    }),
 
     login: asyncHandler(async (req, res) => {
         let { identifier, password } = req.body;

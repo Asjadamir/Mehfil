@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { registerFormSchema } from "@/lib/validation-schemas";
+import axios from "axios";
+import { useState } from "react";
 
 const formSchema = registerFormSchema;
 
@@ -27,25 +29,27 @@ export default function RegisterPreview() {
             confirmPassword: "",
         },
     });
+    const [loading, setloading] = useState(false);
 
     const values = form.watch();
-    console.log(values);
     const isAnyFieldEmpty = Object.values(values).some((val) => !val?.trim());
-    console.log(isAnyFieldEmpty);
 
     async function onSubmit(values) {
         try {
             // Assuming an async registration function
-            console.log(values);
-            toast(
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">
-                        {JSON.stringify(values, null, 2)}
-                    </code>
-                </pre>
+            setloading(true);
+            const response = await axios.post(
+                "http://localhost:5000/api/users/register-email",
+                { email: values.email, password: values.password }
             );
-
+            console.log("Response:", response);
+            if (response.status === 200)
+                toast.success(
+                    "Registration successful! Please check your email. Check your email for verification"
+                );
+            else toast.error("Registration failed. Please try again.");
             form.reset();
+            setloading(false);
         } catch (error) {
             console.error("Form submission error", error);
             toast.error("Failed to submit the form. Please try again.");
@@ -140,7 +144,7 @@ export default function RegisterPreview() {
 
                             <Button
                                 type="submit"
-                                disabled={isAnyFieldEmpty}
+                                disabled={isAnyFieldEmpty || loading}
                                 className="w-full"
                             >
                                 Register

@@ -17,7 +17,7 @@ export const sendVerificationEmail = async (email, token) => {
     });
 
     // Construct verification URL
-    const url = `${FRONTEND_URL}/verifyEmail/${token}`;
+    const url = `${FRONTEND_URL}/verify-email/${token}`;
 
     // Send email
     try {
