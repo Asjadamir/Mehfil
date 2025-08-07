@@ -2,13 +2,15 @@ import "./App.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Navbar } from "./components/navbar";
-import ForgotPassword from "./pages/forgot_password";
-import Login from "./pages/login";
-import ResetPassword from "./pages/reset_password";
+import ForgotPassword from "./pages/ForgotPassword";
+import Login from "./pages/Login";
+import ResetPassword from "./pages/ResetPassword";
 import { Toaster } from "react-hot-toast";
 // import { io } from "socket.io-client";
-import SignUp from "./pages/signup";
-import VerifyEmail from "./pages/verifyEmail";
+import SignUp from "./pages/SignUp";
+import VerifyEmail from "./pages/VerifyEmail";
+import ErrorPage from "./pages/ErrorPage";
+import NotFoundPage from "./pages/PageNotFound";
 
 function App() {
     // const socket = io("http://localhost:5000");
@@ -38,7 +40,9 @@ function App() {
                         path="/reset-password/:token"
                         element={<ResetPassword />}
                     />
+                    <Route path="/error" element={<ErrorPage />} />
                     <Route path="signup" element={<SignUp />} />
+                    <Route path="*" element={<NotFoundPage />} />
                 </Routes>
             </BrowserRouter>
         </ThemeProvider>

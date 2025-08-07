@@ -30,7 +30,6 @@ const cookieOptions = {
 export const userControllers = {
     registerEmail: asyncHandler(async (req, res) => {
         let { email, password } = req.body;
-        console.log(req.body);
         if ([email, password].some((field) => field.trim() === ""))
             throw new ApiError(400, "All fields are required");
 
@@ -49,7 +48,6 @@ export const userControllers = {
         await user.save();
 
         let info = await sendVerificationEmail(user.email, user.verifyToken);
-        console.log(user.verifyToken);
         console.log("Verification email sent:", info.response);
 
         let storedUser = new userDTO(user);

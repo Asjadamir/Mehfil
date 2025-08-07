@@ -7,6 +7,7 @@ import http from "http";
 import { Server } from "socket.io";
 import { SocketHandler } from "./src/sockets/index.js";
 import cors from "cors";
+import { errorHandler } from "./src/middlewares/errorHandler.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -35,5 +36,6 @@ app.get("/", (req, res) => {
     res.send("Welcome to the backend server!");
 });
 app.use("/api/users", userRouter);
+app.use(errorHandler);
 
 server.listen(PORT, () => console.log("listening on port " + PORT));

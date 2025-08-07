@@ -30,30 +30,33 @@ export default function RegisterPreview() {
         },
     });
     const [loading, setloading] = useState(false);
+    const [error, setError] = useState(null);
 
     const values = form.watch();
     const isAnyFieldEmpty = Object.values(values).some((val) => !val?.trim());
 
     async function onSubmit(values) {
+        setloading(true);
         try {
             // Assuming an async registration function
-            setloading(true);
-            const response = await axios.post(
-                "http://localhost:5000/api/users/register-email",
-                { email: values.email, password: values.password }
+            await axios.post("http://localhost:5000/api/users/register-email", {
+                email: values.email,
+                password: values.password,
+            });
+            toast.success(
+                "Registration successful! Please check your email. Check your email for verification"
             );
-            console.log("Response:", response);
-            if (response.status === 200)
-                toast.success(
-                    "Registration successful! Please check your email. Check your email for verification"
-                );
-            else toast.error("Registration failed. Please try again.");
+            setError(null);
             form.reset();
-            setloading(false);
-        } catch (error) {
-            console.error("Form submission error", error);
-            toast.error("Failed to submit the form. Please try again.");
+        } catch (err) {
+            console.error("Form submission error", err);
+            const errorMessage =
+                err.response?.data?.message || "An error occurred";
+            setError(errorMessage);
+            toast.error(errorMessage);
         }
+
+        setloading(false);
     }
 
     return (
@@ -147,7 +150,11 @@ export default function RegisterPreview() {
                                 disabled={isAnyFieldEmpty || loading}
                                 className="w-full"
                             >
-                                Register
+                                {loading ? (
+                                    <div className="dots-loader"></div>
+                                ) : (
+                                    "Sign Up"
+                                )}
                             </Button>
                         </div>
                     </form>
@@ -157,6 +164,12 @@ export default function RegisterPreview() {
                     <Link to="/login" className="underline">
                         Login
                     </Link>
+                    <br />
+                    {error && (
+                        <p className="text-destructive text-sm font-bold mt-4">
+                            {error}
+                        </p>
+                    )}
                 </div>
             </div>
         </div>
