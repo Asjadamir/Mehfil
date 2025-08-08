@@ -1,11 +1,11 @@
 import React from "react";
 import "../App.css";
-import { useLocation } from "react-router-dom";
 import {
     NavigationMenu,
     NavigationMenuList,
     NavigationMenuItem,
 } from "@/components/ui/navigation-menu";
+import { NavLink, matchPath, useLocation } from "react-router-dom";
 import { House, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,7 +17,6 @@ import {
     SheetDescription,
 } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
-import { NavLink } from "react-router-dom";
 import ThemeToggle from "@/components/ui/theme-toggle";
 
 const navLinks = [
@@ -35,14 +34,18 @@ const hiddenPaths = [
     "/reset-password",
     "/verify-email/:token",
     "/error",
+    "/register-profile/:userId",
 ];
 
 export const Navbar = () => {
     const location = useLocation();
+    const shouldHide = hiddenPaths.some((path) =>
+        matchPath({ path, exact: true }, location.pathname)
+    );
     return (
         <div
             className={
-                hiddenPaths.includes(location.pathname)
+                shouldHide
                     ? "hidden"
                     : "w-full fixed top-0 z-50 bg-background/60 backdrop-blur-sm"
             }

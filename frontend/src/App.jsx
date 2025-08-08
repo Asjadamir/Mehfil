@@ -11,6 +11,7 @@ import SignUp from "./pages/SignUp";
 import VerifyEmail from "./pages/VerifyEmail";
 import ErrorPage from "./pages/ErrorPage";
 import NotFoundPage from "./pages/PageNotFound";
+import RegisterUser from "./pages/RegisterUser";
 
 function App() {
     // const socket = io("http://localhost:5000");
@@ -42,6 +43,10 @@ function App() {
                     />
                     <Route path="/error" element={<ErrorPage />} />
                     <Route path="signup" element={<SignUp />} />
+                    <Route
+                        path="/register-profile/:userId"
+                        element={<RegisterUser />}
+                    />
                     <Route path="*" element={<NotFoundPage />} />
                 </Routes>
             </BrowserRouter>
