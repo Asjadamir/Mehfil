@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
+import { registerEmail } from "@/api/internalApi";
 import {
     Form,
     FormControl,
@@ -16,13 +17,10 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { registerFormSchema } from "@/lib/validation-schemas";
 import { useState } from "react";
-import axios from "axios";
-
-const formSchema = registerFormSchema;
 
 export default function RegisterPreview() {
     const form = useForm({
-        resolver: zodResolver(formSchema),
+        resolver: zodResolver(registerFormSchema),
         defaultValues: {
             email: "",
             password: "",
@@ -39,12 +37,9 @@ export default function RegisterPreview() {
         setloading(true);
         try {
             // Assuming an async registration function
-            await axios.post(
-                "http://localhost:5000/api/users/register-email",
-                values
-            );
+            await registerEmail(values);
             toast.success(
-                "Registration successful! Please check your email. Check your email for verification"
+                "Registration successful! Please check your email for verification"
             );
             setError(null);
             form.reset();

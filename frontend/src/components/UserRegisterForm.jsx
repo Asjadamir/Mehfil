@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { ProfileRegisterSchema } from "@/lib/validation-schemas";
 import { X } from "lucide-react";
+import { verifyRegistration, registerProfile } from "@/api/internalApi";
 
 // shadcn/ui imports
 import { Input } from "@/components/ui/input";
@@ -62,17 +62,7 @@ export function RegisterForm() {
             formData.append("username", data.username);
             formData.append("description", data.description);
             formData.append("avatar", data.avatar);
-            let response = await axios.post(
-                "http://localhost:5000/api/users/register-profile",
-                formData,
-                {
-                    withCredentials: true,
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                    },
-                }
-            );
-            console.log("Response", response.data);
+            await registerProfile(formData);
             reset();
             navigate("/");
         } catch (error) {
@@ -95,10 +85,7 @@ export function RegisterForm() {
         (async () => {
             setLoader(true);
             try {
-                await axios.get(
-                    "http://localhost:5000/api/users/verify-registration",
-                    { withCredentials: true }
-                );
+                await verifyRegistration();
                 setLoader(false);
             } catch (error) {
                 toast.error("Please try to Log in");
