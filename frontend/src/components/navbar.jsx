@@ -34,7 +34,7 @@ const hiddenPaths = [
     "/reset-password",
     "/verify-email/:token",
     "/error",
-    "/register-profile/:userId",
+    "/register-profile",
 ];
 
 export const Navbar = () => {

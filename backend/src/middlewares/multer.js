@@ -1,4 +1,5 @@
 import multer from "multer";
+import path from "path";
 
 const storage = multer.diskStorage({
     destination: function (req, file, cd) {
@@ -6,8 +7,8 @@ const storage = multer.diskStorage({
     },
 
     filename: function (req, file, cd) {
-        cd(null, Date.now() + "-" + file.originalname);
+        cd(null, Date.now() + "-" + path.extname(file.originalname));
     },
 });
 
-export const upload = multer({ storage: storage });
+export const upload = multer({ storage });

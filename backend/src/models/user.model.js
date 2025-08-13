@@ -5,6 +5,7 @@ import {
     ACCESS_TOKEN_SECRET,
     VERIFY_TOKEN_SECRET,
     FORGOT_PASSWORD_TOKEN_SECRET,
+    REGISTER_TOKEN_SECRET,
 } from "../config/env.js";
 import jwt from "jsonwebtoken";
 
@@ -18,7 +19,6 @@ let UserSchema = new mongoose.Schema(
 
         username: {
             type: String,
-            unique: true,
             lowercase: true,
             minlength: 4,
             maxlength: 30,
@@ -80,6 +80,7 @@ let UserSchema = new mongoose.Schema(
         refreshToken: String,
         verifyToken: String,
         forgetToken: String,
+        registerToken: String,
 
         friends: [
             {
@@ -168,6 +169,25 @@ UserSchema.methods.generateAccessToken = async function () {
             ACCESS_TOKEN_SECRET,
             { expiresIn: "1h" }
         );
+        return token;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+UserSchema.methods.generateRegisterToken = async function () {
+    try {
+        const token = jwt.sign(
+            {
+                userId: this._id,
+            },
+            REGISTER_TOKEN_SECRET,
+            { expiresIn: "1h" }
+        );
+
+        this.registerToken = token;
+        await this.save();
+
         return token;
     } catch (error) {
         console.log(error);

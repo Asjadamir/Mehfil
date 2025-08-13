@@ -9,24 +9,17 @@ const VerifyEmail = () => {
     useEffect(() => {
         const verifyEmail = async () => {
             try {
-                console.log("request bhej di");
-                const response = await axios.post(
+                await axios.post(
                     "http://localhost:5000/api/users/verify-email",
-                    { token: token }
+                    { token: token },
+                    {
+                        withCredentials: true,
+                    }
                 );
-                console.log("response aagya");
-                console.log("Response:", response);
 
-                if (response.status === 200) {
-                    setMessage(
-                        "Email verified successfully! You can now log in."
-                    );
-                    setTimeout(() => {
-                        navigate("/login");
-                    }, 2000);
-                } else {
-                    setMessage("Email verification failed. Please try again.");
-                }
+                navigate("/register-profile");
+
+                setMessage("Email verified successfully! You can now log in.");
             } catch (error) {
                 console.error("Error verifying email:", error);
             }

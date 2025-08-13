@@ -44,7 +44,7 @@ function App() {
                     <Route path="/error" element={<ErrorPage />} />
                     <Route path="signup" element={<SignUp />} />
                     <Route
-                        path="/register-profile/:userId"
+                        path="/register-profile"
                         element={<RegisterUser />}
                     />
                     <Route path="*" element={<NotFoundPage />} />

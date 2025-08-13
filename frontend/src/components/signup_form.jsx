@@ -15,8 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { registerFormSchema } from "@/lib/validation-schemas";
-import axios from "axios";
 import { useState } from "react";
+import axios from "axios";
 
 const formSchema = registerFormSchema;
 
@@ -39,10 +39,10 @@ export default function RegisterPreview() {
         setloading(true);
         try {
             // Assuming an async registration function
-            await axios.post("http://localhost:5000/api/users/register-email", {
-                email: values.email,
-                password: values.password,
-            });
+            await axios.post(
+                "http://localhost:5000/api/users/register-email",
+                values
+            );
             toast.success(
                 "Registration successful! Please check your email. Check your email for verification"
             );

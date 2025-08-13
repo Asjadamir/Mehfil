@@ -12,10 +12,11 @@ import { errorHandler } from "./src/middlewares/errorHandler.js";
 const app = express();
 const server = http.createServer(app);
 await dbConnect();
+
+app.use(cookieParser());
 app.use(
     cors({
         origin: "http://localhost:5173",
-        methods: ["GET", "POST"],
         credentials: true,
     })
 );
@@ -29,7 +30,6 @@ const io = new Server(server, {
 });
 SocketHandler(io);
 
-app.use(cookieParser());
 app.use(express.json());
 app.use(express.static("public"));
 app.get("/", (req, res) => {

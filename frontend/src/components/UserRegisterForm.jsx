@@ -1,7 +1,11 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { ProfileRegisterSchema } from "@/lib/validation-schemas";
+import { X } from "lucide-react";
 
 // shadcn/ui imports
 import { Input } from "@/components/ui/input";
@@ -10,38 +14,29 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-// Zod schema for validation
-const formSchema = z.object({
-    avatar: z.any().optional(),
-    fullName: z.string().min(2, "Full name is required"),
-    username: z.string().min(2, "Username is required"),
-    description: z.string().max(150, "Max 150 characters").optional(),
-});
-
 export function RegisterForm() {
     const [avatarPreview, setAvatarPreview] = useState(null);
     const [avatarHover, setAvatarHover] = useState(false);
+    const [loader, setLoader] = useState(false);
+    const [buttonLoader, setButtonLoader] = useState(false);
+    const navigate = useNavigate();
 
     const {
         register,
         handleSubmit,
         setValue,
         resetField,
+        reset,
         formState: { errors },
     } = useForm({
-        resolver: zodResolver(formSchema),
+        resolver: zodResolver(ProfileRegisterSchema),
         defaultValues: {
             avatar: undefined,
-            fullName: "",
+            name: "",
             username: "",
             description: "",
         },
     });
-
-    function onSubmit(data) {
-        // Process registration here!
-        console.log(data);
-    }
 
     function handleAvatarChange(e) {
         const file = e.target.files?.[0];
@@ -59,6 +54,35 @@ export function RegisterForm() {
         resetField("avatar");
     }
 
+    async function onSubmit(data) {
+        setButtonLoader(true);
+        try {
+            const formData = new FormData();
+            formData.append("name", data.name);
+            formData.append("username", data.username);
+            formData.append("description", data.description);
+            formData.append("avatar", data.avatar);
+            let response = await axios.post(
+                "http://localhost:5000/api/users/register-profile",
+                formData,
+                {
+                    withCredentials: true,
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
+            );
+            console.log("Response", response.data);
+            reset();
+            navigate("/");
+        } catch (error) {
+            toast.error(error?.response?.data?.message || "An error occurred");
+            console.log(error);
+        }
+
+        setButtonLoader(false);
+    }
+
     // Border and plus sign color logic
     const borderColor = avatarHover
         ? "var(--primary)"
@@ -67,15 +91,38 @@ export function RegisterForm() {
         ? "var(--primary)"
         : "var(--muted-foreground)";
 
-    return (
+    useEffect(() => {
+        (async () => {
+            setLoader(true);
+            try {
+                await axios.get(
+                    "http://localhost:5000/api/users/verify-registration",
+                    { withCredentials: true }
+                );
+                setLoader(false);
+            } catch (error) {
+                toast.error("Please try to Log in");
+                navigate("/error");
+                console.log(error);
+            }
+        })();
+    }, [navigate]);
+
+    return loader ? (
+        <div className="absolute h-screen w-full flex items-center justify-center z-30 font-bold text-3xl bg-background">
+            Loading...
+        </div>
+    ) : (
         <form
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(onSubmit, (errors) => {
+                console.log(errors);
+            })}
             className="rounded-2xl px-6 py-10 w-full max-w-3xl flex flex-col md:flex-row gap-10 md:gap-8 items-stretch"
         >
             {/* Left Column: Avatar & Full Name */}
             <div className="flex flex-col items-center gap-7 md:w-2/5 w-full">
                 {/* Avatar Upload */}
-                <div className="flex flex-col items-center gap-2">
+                <div className="flex flex-col items-center gap-2 relative">
                     <Label
                         htmlFor="avatar-upload"
                         className="relative cursor-pointer group flex flex-col"
@@ -151,40 +198,36 @@ export function RegisterForm() {
                         <Button
                             type="button"
                             variant="destructive"
-                            className="mt-4 text-base px-4 py-2 rounded-full"
+                            className="w-8 h-8 rounded-full flex items-center justify-center absolute right-0 cursor-pointer"
                             onClick={handleDeleteAvatar}
                         >
-                            Remove Image
+                            <X className="w-4 h-4" />
                         </Button>
                     )}
                 </div>
                 {/* Full Name */}
                 <div className="w-full mt-2">
                     <Label
-                        htmlFor="fullname"
+                        htmlFor="name"
                         className="mb-2 text-sm font-medium"
                         style={{ color: "var(--muted-foreground)" }}
                     >
                         Full Name
                     </Label>
                     <Input
-                        id="fullname"
+                        id="name"
                         type="text"
                         placeholder="Your full name"
                         className={cn(
-                            "w-full px-4 py-3 rounded-full border border-input bg-muted text-base outline-none focus:ring-2 focus:ring-primary transition mt-2",
-                            errors.fullName && "border-destructive"
+                            "w-full px-4 py-3 rounded-full border border-input bg-muted text-base outline-none focus:ring-2 focus:ring-primary transition mt-2 text-foreground",
+                            errors.name && "border-destructive"
                         )}
-                        {...register("fullName")}
-                        style={{
-                            color: "var(--foreground)",
-                            fontFamily: "var(--font-sans)",
-                        }}
+                        {...register("name")}
                         required
                     />
-                    {errors.fullName && (
+                    {errors.name && (
                         <span className="text-destructive text-xs mt-1">
-                            {errors.fullName.message}
+                            {errors.name.message}
                         </span>
                     )}
                 </div>
@@ -195,8 +238,7 @@ export function RegisterForm() {
                 <div className="w-full">
                     <Label
                         htmlFor="username"
-                        className="mb-2 text-sm font-medium"
-                        style={{ color: "var(--muted-foreground)" }}
+                        className="mb-2 text-sm font-medium text-muted-foreground"
                     >
                         Username
                     </Label>
@@ -205,14 +247,10 @@ export function RegisterForm() {
                         type="text"
                         placeholder="Choose a username"
                         className={cn(
-                            "w-full px-4 py-3 rounded-full border border-input bg-muted text-base outline-none focus:ring-2 focus:ring-secondary transition mt-2",
+                            "w-full px-4 py-3 rounded-full border border-input bg-muted text-base outline-none focus:ring-2 focus:ring-secondary transition mt-2 text-foreground",
                             errors.username && "border-destructive"
                         )}
                         {...register("username")}
-                        style={{
-                            color: "var(--foreground)",
-                            fontFamily: "var(--font-sans)",
-                        }}
                         required
                     />
                     {errors.username && (
@@ -225,8 +263,7 @@ export function RegisterForm() {
                 <div className="w-full">
                     <Label
                         htmlFor="description"
-                        className="mb-2 text-sm font-medium"
-                        style={{ color: "var(--muted-foreground)" }}
+                        className="mb-2 text-sm font-medium text-muted-foreground"
                     >
                         Description
                     </Label>
@@ -234,15 +271,12 @@ export function RegisterForm() {
                         id="description"
                         placeholder="Tell us about yourself"
                         className={cn(
-                            "w-full px-4 py-3 rounded-2xl border border-input bg-muted text-base outline-none focus:ring-2 focus:ring-accent transition resize-none mt-2",
+                            "w-full px-4 py-3 rounded-2xl border border-input bg-muted text-base outline-none focus:ring-2 focus:ring-accent transition resize-none mt-2 text-foreground",
                             errors.description && "border-destructive"
                         )}
                         rows={3}
                         {...register("description")}
-                        style={{
-                            color: "var(--foreground)",
-                            fontFamily: "var(--font-sans)",
-                        }}
+                        required
                     />
                     {errors.description && (
                         <span className="text-destructive text-xs mt-1">
@@ -254,11 +288,12 @@ export function RegisterForm() {
                 <Button
                     type="submit"
                     className="mt-2 w-full py-3 rounded-full font-semibold shadow bg-primary text-primary-foreground transition hover:bg-primary/90"
-                    style={{
-                        fontFamily: "var(--font-sans)",
-                    }}
                 >
-                    Create Account
+                    {buttonLoader ? (
+                        <div className="dots-loader"></div>
+                    ) : (
+                        "Create Account"
+                    )}
                 </Button>
             </div>
         </form>

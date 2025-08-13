@@ -6,7 +6,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { sendVerificationEmail } from "../utils/verificationEmail.js";
 import { userDTO } from "../dto/userdto.js";
 import jwt from "jsonwebtoken";
-import { VERIFY_TOKEN_SECRET } from "../config/env.js";
+import { REGISTER_TOKEN_SECRET, VERIFY_TOKEN_SECRET } from "../config/env.js";
 
 const generateAccessAndRefreshToken = async (userId) => {
     let accessToken, refreshToken;
@@ -24,7 +24,8 @@ const generateAccessAndRefreshToken = async (userId) => {
 
 const cookieOptions = {
     httpOnly: true,
-    secure: true,
+    secure: false,
+    sameSite: "lax",
 };
 
 export const userControllers = {
@@ -50,17 +51,15 @@ export const userControllers = {
         let info = await sendVerificationEmail(user.email, user.verifyToken);
         console.log("Verification email sent:", info.response);
 
-        let storedUser = new userDTO(user);
-
         return res.status(200).json(
             new ApiResponse(200, "User registered successfully", {
-                user: storedUser,
+                user: new userDTO(user),
             })
         );
     }),
 
-    registerUser: asyncHandler(async (req, res) => {
-        let { name, username, id } = req.body;
+    registerProfile: asyncHandler(async (req, res) => {
+        let { name, username, description } = req.body;
 
         // Check for the Username
         const usernameInUse = await User.findOne({ username });
@@ -69,54 +68,117 @@ export const userControllers = {
         }
 
         let avatarPath;
+        let avatar = "";
 
         if (req.file.fieldname === "avatar") {
             avatarPath = req.file.path;
         }
+        if (avatarPath) {
+            avatar = await uploadOnCloudinary(avatarPath);
+        }
 
-        let avatar = await uploadOnCloudinary(avatarPath);
+        let user = await User.findOneAndUpdate(
+            { registerToken: req.cookies.registerToken },
+            {
+                name,
+                username,
+                description,
+                avatar: avatar?.url || "",
+                $unset: {
+                    registerToken: 1,
+                },
+            }
+        );
 
-        const user = new User({
-            name,
-            username,
-            email,
-            password,
-            avatar: avatar?.url || "",
-        });
         await user.save();
 
         let { accessToken, refreshToken } = await generateAccessAndRefreshToken(
             user._id
         );
+
+        return res
+            .status(200)
+            .cookie("accessToken", accessToken, cookieOptions)
+            .cookie("refreshToken", refreshToken, cookieOptions)
+            .clearCookie("registerToken", cookieOptions)
+            .json(
+                new ApiResponse(200, "User registered successfully", {
+                    user: new userDTO(user),
+                })
+            );
     }),
 
     verifyUserEmail: asyncHandler(async (req, res) => {
         const { token } = req.body;
         if (!token) throw new ApiError(400, "Token is missing");
 
-        console.log("Token received:", token);
-        let tokenData = await jwt.verify(token, VERIFY_TOKEN_SECRET);
+        let tokenData = jwt.verify(token, VERIFY_TOKEN_SECRET);
         if (!tokenData)
             throw new ApiError(400, "Invalid token or token expired.");
 
-        let user = await User.findOne({ verifyToken: token });
+        let user = await User.findOne({
+            verifyToken: token,
+            _id: tokenData.userId,
+        });
         if (!user)
             throw new ApiError(400, "Invalid token or user already verified.");
-        console.log(tokenData.userId, user._id);
 
-        if (tokenData.userId == user._id) {
-            user.isVerified = true;
-            user.verifyToken = undefined;
-            await user.save();
-            let userSaved = new userDTO(user);
-            return res.status(200).json(
+        user.isVerified = true;
+        user.verifyToken = undefined;
+        const registerToken = await user.generateRegisterToken();
+        user = await user.save();
+        return res
+            .cookie("registerToken", registerToken, {
+                httpOnly: true,
+                secure: false,
+                sameSite: "lax",
+            })
+            .status(200)
+            .json(
                 new ApiResponse(200, "User verified successfully", {
-                    user: userSaved,
+                    user: new userDTO(user),
                 })
             );
-        } else {
-            throw new ApiError(400, "Invalid token or user already verified.");
-        }
+    }),
+
+    verifyUserName: asyncHandler(async (req, res) => {
+        const { username } = req.body;
+        if (!username) throw new ApiError(400, "Username is required");
+
+        const user = await User.findOne({ username });
+        if (user) throw new ApiError(404, username + " already exists");
+
+        return res.status(200).json(
+            new ApiResponse(200, "Username is available", {
+                user: new userDTO(user),
+            })
+        );
+    }),
+
+    verifyRegistration: asyncHandler(async (req, res) => {
+        const registerToken = req.cookies.registerToken;
+        if (!registerToken) throw new ApiError(400, "Token is required");
+
+        const tokenData = jwt.verify(
+            registerToken,
+            REGISTER_TOKEN_SECRET,
+            (err, decoded) => {
+                if (err) {
+                    throw new ApiError(401, "Invalid or expired token");
+                }
+                return decoded;
+            }
+        );
+        if (!tokenData) throw new ApiError(401, "No token data");
+
+        const user = await User.findById(tokenData.userId);
+        if (!user) throw new ApiError(404, "User not found");
+
+        return res.status(200).json(
+            new ApiResponse(200, "User verified successfully", {
+                user: new userDTO(user),
+            })
+        );
     }),
 
     login: asyncHandler(async (req, res) => {

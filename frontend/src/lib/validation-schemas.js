@@ -20,3 +20,20 @@ export const registerFormSchema = z
         message: "Passwords must match with confirm password",
         path: ["confirmPassword"],
     });
+
+export const ProfileRegisterSchema = z.object({
+    avatar: z.any().optional(),
+    name: z
+        .string()
+        .min(3, "Name must be at least 3 characters long")
+        .max(30, "Name must be at most 30 characters long"),
+    username: z
+        .string()
+        .min(3, "Username must be at least 3 characters long")
+        .max(20, "Username must be at most 20 characters long")
+        .regex(/^[a-z0-9_]+$/, "Use only lowercase, numbers, and underscores."),
+    description: z
+        .string()
+        .min(5, "Description must be at least 5 characters long")
+        .max(120, "Max 120 characters"),
+});
