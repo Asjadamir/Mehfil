@@ -19,9 +19,13 @@ export const verifyRegistration = async () => {
 };
 
 export const registerProfile = async (data) => {
-    return await internalApi.get("/users/register-profile", data, {
+    return await internalApi.post("/users/register-profile", data, {
         headers: {
             "Content-Type": "multipart/form-data",
         },
     });
+};
+
+export const refresh = async () => {
+    return await internalApi.get("/refresh");
 };

@@ -6,7 +6,11 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { sendVerificationEmail } from "../utils/verificationEmail.js";
 import { userDTO } from "../dto/userdto.js";
 import jwt from "jsonwebtoken";
-import { REGISTER_TOKEN_SECRET, VERIFY_TOKEN_SECRET } from "../config/env.js";
+import {
+    REFRESH_TOKEN_SECRET,
+    REGISTER_TOKEN_SECRET,
+    VERIFY_TOKEN_SECRET,
+} from "../config/env.js";
 
 const generateAccessAndRefreshToken = async (userId) => {
     let accessToken, refreshToken;
@@ -159,7 +163,7 @@ export const userControllers = {
         const registerToken = req.cookies.registerToken;
         if (!registerToken) throw new ApiError(400, "Token is required");
 
-        const tokenData = jwt.verify(
+        const userId = jwt.verify(
             registerToken,
             REGISTER_TOKEN_SECRET,
             (err, decoded) => {
@@ -168,10 +172,10 @@ export const userControllers = {
                 }
                 return decoded;
             }
-        );
-        if (!tokenData) throw new ApiError(401, "No token data");
+        ).userId;
+        if (!userId) throw new ApiError(401, "No token data");
 
-        const user = await User.findById(tokenData.userId);
+        const user = await User.findById(userId);
         if (!user) throw new ApiError(404, "User not found");
 
         return res.status(200).json(
@@ -236,5 +240,35 @@ export const userControllers = {
         res.clearCookie("accessToken", cookieOptions);
         res.clearCookie("refreshToken", cookieOptions);
         return res.status(200).json(new ApiResponse(200, "User logged out"));
+    }),
+
+    refresh: asyncHandler(async (req, res) => {
+        const originalRefreshToken = req.cookies.refreshToken;
+
+        const userId = jwt.verify(
+            originalRefreshToken,
+            REFRESH_TOKEN_SECRET
+        ).userId;
+
+        if (!userId)
+            throw new ApiError(401, "User unautherized or token expired.");
+
+        const user = await User.findOne({ _id: userId, originalRefreshToken });
+        if (!user) throw new ApiError(401, "User unautherized");
+
+        let { accessToken, refreshToken } = generateAccessAndRefreshToken(
+            user._id
+        );
+
+        return res
+            .status(200)
+            .cookie("accessToken", accessToken, cookieOptions)
+            .cookie("refreshToken", refreshToken, cookieOptions)
+            .json(
+                new ApiResponse(200, "User authenticated", {
+                    user: new userDTO(user),
+                    auth: true,
+                })
+            );
     }),
 };

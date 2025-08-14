@@ -1,7 +1,7 @@
 import "./App.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Navbar } from "./components/navbar";
+import { Navbar } from "./components/Navbar";
 import ForgotPassword from "./pages/ForgotPassword";
 import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
@@ -12,13 +12,21 @@ import VerifyEmail from "./pages/VerifyEmail";
 import ErrorPage from "./pages/ErrorPage";
 import NotFoundPage from "./pages/PageNotFound";
 import RegisterUser from "./pages/RegisterUser";
+import useAutoLogin from "./hooks/useAutoLogin";
+import Loader from "./components/Loader";
 
 function App() {
     // const socket = io("http://localhost:5000");
     // socket.on("connect", () => {
     //     console.log("Connected to WebSocket server");
     // });
-    return (
+    let loading = useAutoLogin();
+
+    return loading ? (
+        <ThemeProvider storageKey="vite-ui-theme" defaultTheme="system">
+            <Loader />
+        </ThemeProvider>
+    ) : (
         <ThemeProvider storageKey="vite-ui-theme" defaultTheme="system">
             <BrowserRouter>
                 <Navbar />

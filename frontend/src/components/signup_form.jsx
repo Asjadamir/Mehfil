@@ -37,7 +37,8 @@ export default function RegisterPreview() {
         setloading(true);
         try {
             // Assuming an async registration function
-            await registerEmail(values);
+            let res = await registerEmail(values);
+            console.log(res);
             toast.success(
                 "Registration successful! Please check your email for verification"
             );

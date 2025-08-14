@@ -13,5 +13,6 @@ router.post(
     upload.single("avatar"),
     userControllers.registerProfile
 );
+router.get("/refresh", userControllers.refresh);
 
 export default router;
