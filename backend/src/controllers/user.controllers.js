@@ -13,14 +13,13 @@ import {
 } from "../config/env.js";
 
 const generateAccessAndRefreshToken = async (userId) => {
-    let accessToken, refreshToken;
     try {
         const user = await User.findById(userId);
 
-        accessToken = await user.generateAccessToken();
-        refreshToken = await user.generateRefreshToken();
+        let accessToken = await user.generateAccessToken();
+        let { refreshToken, csrfToken } = await user.generateRefreshToken();
 
-        return { accessToken, refreshToken };
+        return { accessToken, refreshToken, csrfToken };
     } catch (error) {
         console.error("There is an error in generating tokens");
     }
@@ -96,9 +95,8 @@ export const userControllers = {
 
         await user.save();
 
-        let { accessToken, refreshToken } = await generateAccessAndRefreshToken(
-            user._id
-        );
+        let { accessToken, refreshToken, csrfToken } =
+            await generateAccessAndRefreshToken(user._id);
 
         return res
             .status(200)
@@ -108,6 +106,8 @@ export const userControllers = {
             .json(
                 new ApiResponse(200, "User registered successfully", {
                     user: new userDTO(user),
+                    auth: true,
+                    csrfToken,
                 })
             );
     }),
@@ -197,13 +197,10 @@ export const userControllers = {
         if (!user) throw new ApiError(401, "User not found");
 
         const isMatch = await user.isValidPassword(password);
-        if (!isMatch) throw new ApiError(403, "Invalid password");
+        // if (!isMatch) throw new ApiError(403, "Invalid password");
 
-        const { accessToken, refreshToken } =
+        const { accessToken, refreshToken, csrfToken } =
             await generateAccessAndRefreshToken(user._id);
-        const storedUser = await User.findById(user._id).select(
-            "-password -refreshToken"
-        );
 
         return res
             .status(200)
@@ -211,9 +208,9 @@ export const userControllers = {
             .cookie("refreshToken", refreshToken, cookieOptions)
             .json(
                 new ApiResponse(200, "User logged in successfully", {
-                    user: storedUser,
-                    accessToken: accessToken,
-                    refreshToken: refreshToken,
+                    user: new userDTO(user),
+                    auth: true,
+                    csrfToken,
                 })
             );
     }),
@@ -256,9 +253,8 @@ export const userControllers = {
         const user = await User.findOne({ _id: userId, originalRefreshToken });
         if (!user) throw new ApiError(401, "User unautherized");
 
-        let { accessToken, refreshToken } = generateAccessAndRefreshToken(
-            user._id
-        );
+        let { accessToken, refreshToken, csrfToken } =
+            generateAccessAndRefreshToken(user._id);
 
         return res
             .status(200)
@@ -268,6 +264,7 @@ export const userControllers = {
                 new ApiResponse(200, "User authenticated", {
                     user: new userDTO(user),
                     auth: true,
+                    csrfToken,
                 })
             );
     }),

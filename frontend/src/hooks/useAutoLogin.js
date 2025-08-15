@@ -19,6 +19,7 @@ const useAutoLogin = () => {
                     username,
                     userId,
                     auth: response.data.data.auth,
+                    csrfToken: response.data.data.csrfToken,
                 };
                 dispatch(setUser(user));
                 // eslint-disable-next-line no-unused-vars

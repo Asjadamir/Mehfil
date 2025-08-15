@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import {
     REFRESH_TOKEN_SECRET,
     ACCESS_TOKEN_SECRET,
@@ -108,16 +109,18 @@ UserSchema.methods.isValidPassword = async function (password) {
 
 UserSchema.methods.generateRefreshToken = async function () {
     try {
-        const token = jwt.sign(
+        let csrfToken = crypto.randomBytes(32).toString("hex");
+        const refreshToken = jwt.sign(
             {
                 userId: this._id,
+                csrfToken,
             },
             REFRESH_TOKEN_SECRET,
             { expiresIn: "7d" }
         );
-        this.refreshToken = token;
+        this.refreshToken = refreshToken;
         await this.save();
-        return token;
+        return { refreshToken, csrfToken };
     } catch (error) {
         console.log(error);
     }
