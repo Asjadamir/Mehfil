@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import ThemeToggle from "@/components/ui/theme-toggle";
+import ProfileButton from "./ProfileButton";
 
 const navLinks = [
     { name: "Home", href: "/", icon: <House className="h-4 w-4" /> },
@@ -42,6 +43,7 @@ export const Navbar = () => {
     const shouldHide = hiddenPaths.some((path) =>
         matchPath({ path, exact: true }, location.pathname)
     );
+
     return (
         <div
             className={
@@ -75,16 +77,7 @@ export const Navbar = () => {
                             </NavigationMenuItem>
                         ))}
                         <NavigationMenuItem>
-                            <NavLink
-                                to="/login"
-                                className={
-                                    location.pathname === "/login"
-                                        ? "hidden"
-                                        : ""
-                                }
-                            >
-                                <Button variant="secondary">Log in</Button>
-                            </NavLink>
+                            <ProfileButton />
                         </NavigationMenuItem>
                         <NavigationMenuItem>
                             <ThemeToggle />
@@ -94,12 +87,13 @@ export const Navbar = () => {
 
                 {/* Mobile Hamburger */}
                 <div className="md:hidden flex flex-row gap-3">
+                    <ProfileButton />
                     <ThemeToggle />
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button
                                 variant="ghost"
-                                className="shadow-primary shadow-xl"
+                                className="shadow-primary shadow-md"
                                 size="icon"
                             >
                                 <Menu className="h-6 w-6" />

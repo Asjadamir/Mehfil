@@ -27,5 +27,5 @@ export const registerProfile = async (data) => {
 };
 
 export const refresh = async () => {
-    return await internalApi.get("/refresh");
+    return await internalApi.get("/users/refresh");
 };
