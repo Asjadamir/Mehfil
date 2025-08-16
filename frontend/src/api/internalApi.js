@@ -3,7 +3,6 @@ import axios from "axios";
 const internalApi = axios.create({
     baseURL: "http://localhost:5000/api/",
     withCredentials: true,
-    timeout: 7000,
 });
 
 export const registerEmail = async (data) => {
@@ -28,4 +27,8 @@ export const registerProfile = async (data) => {
 
 export const refresh = async () => {
     return await internalApi.get("/users/refresh");
+};
+
+export const login = async (data) => {
+    return await internalApi.post("/users/login", data);
 };

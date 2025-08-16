@@ -187,7 +187,6 @@ export const userControllers = {
 
     login: asyncHandler(async (req, res) => {
         let { identifier, password } = req.body;
-
         if (!identifier)
             throw new ApiError(401, "Username or email is required");
 
@@ -197,7 +196,7 @@ export const userControllers = {
         if (!user) throw new ApiError(401, "User not found");
 
         const isMatch = await user.isValidPassword(password);
-        // if (!isMatch) throw new ApiError(403, "Invalid password");
+        if (!isMatch) throw new ApiError(403, "Invalid password");
 
         const { accessToken, refreshToken, csrfToken } =
             await generateAccessAndRefreshToken(user._id);
@@ -241,7 +240,6 @@ export const userControllers = {
 
     refresh: asyncHandler(async (req, res) => {
         const originalRefreshToken = req.cookies.refreshToken;
-
         const userId = jwt.verify(
             originalRefreshToken,
             REFRESH_TOKEN_SECRET
@@ -249,13 +247,14 @@ export const userControllers = {
 
         if (!userId)
             throw new ApiError(401, "User unautherized or token expired.");
-
-        const user = await User.findOne({ _id: userId, originalRefreshToken });
+        const user = await User.findOne({
+            _id: userId,
+            refreshToken: originalRefreshToken,
+        });
         if (!user) throw new ApiError(401, "User unautherized");
 
         let { accessToken, refreshToken, csrfToken } =
-            generateAccessAndRefreshToken(user._id);
-
+            await generateAccessAndRefreshToken(user._id);
         return res
             .status(200)
             .cookie("accessToken", accessToken, cookieOptions)

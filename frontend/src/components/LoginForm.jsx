@@ -1,9 +1,12 @@
 "use client";
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
+import { login } from "@/api/internalApi";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/store/userSlice";
 
 import {
     Form,
@@ -16,28 +19,50 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-
-import { loginFormSchema } from "@/lib/validation-schemas.js";
-
-const formSchema = loginFormSchema;
+import { loginFormSchema as formSchema } from "@/lib/validation-schemas.js";
+import { setCsrf } from "@/store/csrfSlice";
+import { useState } from "react";
+import BtnLoader from "./BtnLoader";
 
 export default function LoginPreview() {
+    const [error, setError] = useState("");
+    const [btnLoading, setBtnLoading] = useState(false);
+
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            email: "",
+            identifier: "",
             password: "",
         },
     });
 
+    let dispatch = useDispatch();
+    let navigate = useNavigate();
     async function onSubmit(values) {
+        setBtnLoading(true);
         try {
-            // Assuming an async login function
             console.log(values);
+            let response = await login(values);
+            let { userId, avatar, email, name, username } =
+                response.data.data.user;
+            let user = {
+                userId,
+                avatar,
+                email,
+                name,
+                username,
+                auth: response.data.data.auth,
+            };
+            dispatch(setUser(user));
+            dispatch(setCsrf(response.data.data.csrfToken));
+            form.reset();
             toast.success("Login successful! Redirecting to dashboard...");
-        } catch (error) {
-            console.error("Form submission error", error);
-            toast.error("Failed to submit the form. Please try again.");
+            navigate("/");
+        } catch (err) {
+            setError(err.response?.data?.message);
+            console.error("Login error", err);
+        } finally {
+            setBtnLoading(false);
         }
     }
 
@@ -55,18 +80,17 @@ export default function LoginPreview() {
                             <div className="grid gap-5">
                                 <FormField
                                     control={form.control}
-                                    name="email"
+                                    name="identifier"
                                     render={({ field }) => (
                                         <FormItem className="grid gap-2">
-                                            <FormLabel htmlFor="email">
-                                                Email
+                                            <FormLabel htmlFor="identifier">
+                                                Email or Username
                                             </FormLabel>
                                             <FormControl>
                                                 <Input
-                                                    id="email"
-                                                    placeholder="johndoe@mail.com"
-                                                    type="email"
-                                                    autoComplete="email"
+                                                    id="identifier"
+                                                    placeholder="Enter your email or username"
+                                                    type="text"
                                                     required
                                                     className="bg-zinc-100 outline-1 outline-black"
                                                     {...field}
@@ -107,7 +131,7 @@ export default function LoginPreview() {
                                     )}
                                 />
                                 <Button type="submit" className="w-full">
-                                    Login
+                                    {btnLoading ? <BtnLoader /> : "Login"}
                                 </Button>
                                 <Button variant="outline" className="w-full">
                                     Login with Google
@@ -121,6 +145,10 @@ export default function LoginPreview() {
                             Sign up
                         </Link>
                     </div>
+
+                    {error && (
+                        <p className="text-destructive font-bold">{error}</p>
+                    )}
                 </div>
             </div>
         </>

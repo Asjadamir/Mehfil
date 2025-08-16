@@ -1,5 +1,5 @@
 import React from "react";
-import LoginForm from "@/components/login_form";
+import LoginForm from "@/components/LoginForm";
 // import clsx from "clsx";
 
 export const MainFormWrapper = ({ children }) => {

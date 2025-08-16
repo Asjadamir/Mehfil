@@ -14,6 +14,6 @@ router.post(
     userControllers.registerProfile
 );
 router.get("/refresh", userControllers.refresh);
-router.get("/login", userControllers.login);
+router.post("/login", userControllers.login);
 
 export default router;

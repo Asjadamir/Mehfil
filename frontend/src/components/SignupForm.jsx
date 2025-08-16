@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { registerFormSchema } from "@/lib/validation-schemas";
 import { useState } from "react";
+import BtnLoader from "./BtnLoader";
 
 export default function RegisterPreview() {
     const form = useForm({
@@ -37,8 +38,7 @@ export default function RegisterPreview() {
         setloading(true);
         try {
             // Assuming an async registration function
-            let res = await registerEmail(values);
-            console.log(res);
+            await registerEmail(values);
             toast.success(
                 "Registration successful! Please check your email for verification"
             );
@@ -146,11 +146,7 @@ export default function RegisterPreview() {
                                 disabled={isAnyFieldEmpty || loading}
                                 className="w-full"
                             >
-                                {loading ? (
-                                    <div className="dots-loader"></div>
-                                ) : (
-                                    "Sign Up"
-                                )}
+                                {loading ? <BtnLoader /> : "Sign Up"}
                             </Button>
                         </div>
                     </form>

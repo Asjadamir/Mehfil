@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { ProfileRegisterSchema } from "@/lib/validation-schemas";
 import { X } from "lucide-react";
 import { verifyRegistration, registerProfile } from "@/api/internalApi";
-
+import BtnLoader from "./BtnLoader";
 // shadcn/ui imports
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -276,11 +276,7 @@ export function RegisterForm() {
                     type="submit"
                     className="mt-2 w-full py-3 rounded-full font-semibold shadow bg-primary text-primary-foreground transition hover:bg-primary/90"
                 >
-                    {buttonLoader ? (
-                        <div className="dots-loader"></div>
-                    ) : (
-                        "Create Account"
-                    )}
+                    {buttonLoader ? <BtnLoader /> : "Create Account"}
                 </Button>
             </div>
         </form>

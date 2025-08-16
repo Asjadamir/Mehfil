@@ -1,5 +1,5 @@
 import React from "react";
-import SignUpForm from "../components/signup_form";
+import SignUpForm from "../components/SignupForm";
 
 export const MainFormWrapper = ({ children }) => {
     return (

@@ -7,7 +7,6 @@ const initialState = {
     email: "",
     description: "",
     avatar: "",
-    csrfToken: "",
     auth: false,
 };
 
@@ -32,7 +31,6 @@ const userSlice = createSlice({
             state.email = email;
             state.name = name;
             state.username = username;
-            state.csrfToken = csrfToken;
             state.avatar = avatar;
         },
 
@@ -44,7 +42,6 @@ const userSlice = createSlice({
             state.name = "";
             state.username = "";
             state.avatar = "";
-            state.csrfToken = "";
         },
     },
 });

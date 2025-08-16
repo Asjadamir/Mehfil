@@ -4,9 +4,19 @@ export const emailSchema = z.string().email("Invalid email address");
 const passwordSchema = z
     .string()
     .min(8, "Password must be at least 8 characters long");
+const identifierSchema = z
+    .string()
+    .min(3, "Identifier must be at least 3 characters long")
+    .refine(
+        (val) =>
+            /^[a-z0-9_]+$/.test(val) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
+        {
+            message: "Must be a valid username or email",
+        }
+    );
 
 export const loginFormSchema = z.object({
-    email: emailSchema,
+    identifier: identifierSchema,
     password: passwordSchema,
 });
 
